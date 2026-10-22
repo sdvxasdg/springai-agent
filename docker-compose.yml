@@ -1,0 +1,84 @@
+services:
+
+  pgvector:
+    image: pgvector/pgvector:pg17
+    container_name: recruit-pgvector
+    environment:
+      POSTGRES_DB: recruit_vector
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgvector-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d recruit_vector"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  app:
+    build: .
+    container_name: recruit-agent
+    ports:
+      - "8899:8899"
+    environment:
+
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      REDIS_HOST: redis
+      REDIS_PASSWORD: "123"
+
+      PGVECTOR_HOST: pgvector
+      PGVECTOR_USER: postgres
+      PGVECTOR_PASSWORD: postgres
+
+      DASHSCOPE_API_KEY: sk-ws-H.PLDYDYE.qEEM.MEUCICd6KUPh1xB3hUtfkLrIisXWliTD51xNNuDs_Fa6OjtoAiEAw2etL3aNkAlUVu7HH_YX7bwPCm-IZk4jmYeChBP4fBs
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      pgvector:
+        condition: service_healthy
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    container_name: recruit-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: recruit
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: recruit-redis
+    # 给 Redis 设置密码，与 application.yml 中的 password 保持一致
+    command: ["redis-server", "--requirepass", "123", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a 123 ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+  redis-data:
+  pgvector-data:

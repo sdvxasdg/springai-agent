@@ -1,0 +1,33 @@
+### 上传李四简历
+POST http://localhost:8899/resume/upload
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="file"; filename="简历-李四.txt"
+Content-Type: text/plain
+
+< ./简历-李四.txt
+------WebKitFormBoundary
+Content-Disposition: form-data; name="name"
+
+李四
+------WebKitFormBoundary--
+
+###
+# curl -X POST http://localhost:8899/resume/upload
+#  -F "file=@简历-李四.txt;type=text/plain"
+#  -F "name=李四"
+POST http://localhost:8899/resume/upload
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="简历-李四.txt"
+
+< 简历-李四.txt
+--WebAppBoundary
+Content-Disposition: form-data; name="name"
+
+李四
+--WebAppBoundary--
+
+###

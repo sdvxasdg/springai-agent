@@ -1,0 +1,15 @@
+# 复制本文件为 application-local.yml 并填入真实值。
+# application-local.yml 已被 .gitignore 忽略，不会提交到仓库。
+# Copy to application-local.yml and fill in your own secrets.
+spring:
+  ai:
+    dashscope:
+      api-key: sk-your-dashscope-api-key
+  pgvector:
+    datasource:
+      password: postgres
+  datasource:
+    password: root
+  data:
+    redis:
+      password: "123"
